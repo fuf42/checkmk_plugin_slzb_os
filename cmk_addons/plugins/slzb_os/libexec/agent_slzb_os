@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# Shebang needed this time to find the interpreter!
+
+import requests
+import argparse
+
+from pprint import pprint
+
+
+ha_info_url = "http://{hostname}/ha_info"
+ha_sensors_url = "http://{hostname}/ha_sensors"
+
+parser = argparse.ArgumentParser("agent_slzb_os")
+parser.add_argument(
+    "--hostname",
+    help="Specify the hostname or IP of SLZB device.",
+    type=str,
+    required=True)
+
+args = parser.parse_args()
+
+
+# print(ha_info_url.format(hostname = args.hostname))
+
+print('<<<slzb_os:sep(124)>>>')
+
+response = requests.get(ha_info_url.format(hostname = args.hostname))
+#print(response.json())
+data = response.json()
+#pprint(data)
+if "Info" in data:
+  for key, value in data["Info"].items():
+    if key == 'radios':
+      continue
+    print ("%s|%s" % (key, value))
+
+uptime = None
+response = requests.get(ha_sensors_url.format(hostname = args.hostname))
+#print(response.json())
+data = response.json()
+if "Sensors" in data:
+  for key, value in data["Sensors"].items():
+    if key == "uptime":
+      uptime = value
+    print ("%s|%s" % (key, value))
+#
+
+if uptime:
+  print('<<<uptime:sep(124)>>>')
+  print(uptime)
+
+
